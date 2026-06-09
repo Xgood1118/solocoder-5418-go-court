@@ -131,15 +131,13 @@ func CreateHearing(c *gin.Context) {
 	warnings := []models.ScheduleWarning{}
 
 	dailyCount := services.GetJudgeDailyHearingCount(req.JudgeID, req.Date, "")
-	maxPerDay := services.GetMaxHearingsPerDay(req.JudgeID, hearingCase.CaseType)
+	maxPerDay := services.GetMaxHearingsPerDay(hearingCase.CaseType)
 	if dailyCount >= maxPerDay {
 		warnings = append(warnings, models.ScheduleWarning{
 			Level:   "yellow",
 			Message: "法官当日庭数已达上限，建议确认是否继续",
 		})
 	}
-
-	_ = judge
 
 	jurorIDs := []string{}
 	jurorAudit := models.JurorDrawAudit{}
@@ -266,7 +264,7 @@ func PostponeHearing(c *gin.Context) {
 	}
 
 	dailyCount := services.GetJudgeDailyHearingCount(hearing.JudgeID, req.NewDate, id)
-	maxPerDay := services.GetMaxHearingsPerDay(hearing.JudgeID, hearingCase.CaseType)
+	maxPerDay := services.GetMaxHearingsPerDay(hearingCase.CaseType)
 	if dailyCount >= maxPerDay {
 		warnings = append(warnings, models.ScheduleWarning{
 			Level:   "yellow",

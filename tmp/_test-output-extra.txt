@@ -1,0 +1,13 @@
+=== A. Create 2nd detention courtroom for conflict test ===
+{"id":"cee9a3ce-3a8a-4d25-ae29-4e37b2ee9c88","name":"大法庭C","size":"large","capacity":50,"equipment":{"projector":true,"recording":true,"interpretation":true,"detention_access":true},"created_at":"2026-06-09T23:56:53.9901406+08:00","updated_at":"2026-06-09T23:56:53.9901406+08:00"}
+J_ID=3dfcd249-decb-4069-a6ac-9299a9ba4a36
+C_ID=7cff377e-b80f-4ae3-8bd3-c10198c63d13
+=== B. Schedule same judge same slot 2026-07-15 morning (different courtroom, both detention) — should judge-conflict ===
+{"success":false,"conflicts":[{"type":"judge","message":"法官该时段已有庭期安排","detail":"与庭期 bf86745a-badb-46c2-ade9-68f8d652bbaf 冲突，时间: 2026-07-15 morning"},{"type":"lawyer","message":"律师 law1 该时段已有其他庭期","detail":"与庭期 bf86745a-badb-46c2-ade9-68f8d652bbaf 冲突，时间: 2026-07-15 morning"}]}
+=== C. Test postpone red warning: schedule hearing then postpone to tomorrow (1 day < 3 days) ===
+H_NEW_ID=
+Postpone H_NEW to 2026-06-10 (1 day from today, should red warn)
+{"error":"hearing not found"}
+=== D. Test lawyer conflict: same lawyer same slot ===
+{"success":false,"conflicts":[{"type":"judge","message":"法官该时段已有庭期安排","detail":"与庭期 00280e08-3122-4a11-ba0f-47873c2887dc 冲突，时间: 2026-07-10 morning"},{"type":"lawyer","message":"律师 law1 该时段已有其他庭期","detail":"与庭期 00280e08-3122-4a11-ba0f-47873c2887dc 冲突，时间: 2026-07-10 morning"}]}
+=== DONE ===

@@ -16,7 +16,6 @@ func DrawJurors(caseType models.CaseType, date string, count int) ([]string, mod
 	}
 
 	allJurors := store.GetAllJurors()
-	candidates := []string{}
 	candidateIDs := []string{}
 
 	for _, j := range allJurors {
@@ -48,20 +47,19 @@ func DrawJurors(caseType models.CaseType, date string, count int) ([]string, mod
 		}
 
 		if !occupied {
-			candidates = append(candidates, j.ID)
 			candidateIDs = append(candidateIDs, j.ID)
 		}
 	}
 
-	if len(candidates) < count {
-		return nil, models.JurorDrawAudit{}, fmt.Errorf("not enough available jurors: need %d, have %d", count, len(candidates))
+	if len(candidateIDs) < count {
+		return nil, models.JurorDrawAudit{}, fmt.Errorf("not enough available jurors: need %d, have %d", count, len(candidateIDs))
 	}
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	selected := []string{}
-	perm := r.Perm(len(candidates))
+	perm := r.Perm(len(candidateIDs))
 	for i := 0; i < count; i++ {
-		selected = append(selected, candidates[perm[i]])
+		selected = append(selected, candidateIDs[perm[i]])
 	}
 
 	audit := models.JurorDrawAudit{
@@ -201,20 +199,12 @@ func CheckWitnessConflict(caseID string, date string, slot models.TimeSlot, excl
 		return []models.ConflictInfo{{Type: "error", Message: "invalid time slot"}}
 	}
 
-	type witnessInfo struct {
-		WitnessType string
-		WitnessName string
-	}
-
-	currentWitnesses := make(map[string]witnessInfo)
+	currentWitnessIDs := make(map[string]bool)
 	for _, w := range currentCase.Witnesses {
-		currentWitnesses[w.ID] = witnessInfo{
-			WitnessType: w.WitnessType,
-			WitnessName: w.Name,
-		}
+		currentWitnessIDs[w.ID] = true
 	}
 
-	if len(currentWitnesses) == 0 {
+	if len(currentWitnessIDs) == 0 {
 		return nil
 	}
 
@@ -244,7 +234,7 @@ func CheckWitnessConflict(caseID string, date string, slot models.TimeSlot, excl
 		}
 
 		for _, otherW := range otherCase.Witnesses {
-			if _, exists := currentWitnesses[otherW.ID]; exists {
+			if currentWitnessIDs[otherW.ID] {
 				conflicts = append(conflicts, models.ConflictInfo{
 					Type:    "witness",
 					Message: fmt.Sprintf("证人 %s 同时出现在另一起刑事案件中，存在串供风险", otherW.Name),
@@ -305,7 +295,7 @@ func GetJudgeDailyHearingCount(judgeID string, date string, excludeHearingID str
 	return count
 }
 
-func GetMaxHearingsPerDay(judgeID string, caseType models.CaseType) int {
+func GetMaxHearingsPerDay(caseType models.CaseType) int {
 	if caseType == models.CaseTypeCriminal {
 		return 3
 	}
